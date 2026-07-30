@@ -1,0 +1,35 @@
+
+# WORKING VERSION:
+services:
+  # This is your new catalog service, using a pre-built image
+  catalog:
+    image: tabulario/iceberg-rest:1.6.0
+    container_name: iceberg-rest-catalog
+    ports:
+      - "8181:8181"
+    environment:
+      - CATALOG_AUTHORIZATION_TYPE=NONE
+      - CATALOG_WAREHOUSE=/tmp/warehouse
+    volumes:
+        # Mount your local data to the new writable path
+      - ./data:/tmp/warehouse
+
+
+  app:
+    build: ./app
+    image: my-iceberg-env
+    container_name: my-app
+    depends_on:
+      - catalog 
+    ports:
+      - "8889:8888"
+    volumes:
+      - .:/home/appuser/work
+      # Mount the shared data folder
+      - ./data:/tmp/warehouse
+    command: >
+      jupyter lab
+      --ip=0.0.0.0
+      --allow-root
+      --ServerApp.token=''
+
